@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes" />
+  <title>Anes-Monitoring chart</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>Anes-Monitoring chart</header>
+
+  <div class="page">
+    <div class="grid">
+      <div>
+        <div class="card">
+          <h3>Patient &amp; Procedure</h3>
+
+          <div class="inline-2">
+            <div>
+              <label>Patient Name</label>
+              <input id="pname" placeholder="Patient name" />
+            </div>
+            <div>
+              <label>Patient Code</label>
+              <input id="pcode" placeholder="Patient code" />
+            </div>
+          </div>
+
+          <div class="inline-2">
+            <div>
+              <label>Weight (kg)</label>
+              <input id="pweight" type="number" step="0.01" placeholder="Weight in kg" />
+            </div>
+            <div>
+              <label>Type</label>
+              <select id="ptype">
+                <option>Canine</option>
+                <option>Feline</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-2">
+            <div>
+              <label>Sex</label>
+              <select id="sex">
+                <option>Male</option>
+                <option>Female</option>
+                <option>Male Neutered</option>
+                <option>Female Neutered</option>
+              </select>
+            </div>
+            <div>
+              <label>ASA Status</label>
+              <select id="asa">
+                <option>I</option>
+                <option>II</option>
+                <option>III</option>
+                <option>IV</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="inline-2">
+            <div>
+              <label>ET Tube Size</label>
+              <input id="ett" placeholder="e.g. 7.5" />
+            </div>
+            <div>
+              <label>Time of Intubation</label>
+              <input id="intubationTime" type="datetime-local" />
+            </div>
+          </div>
+
+          <label>Anesthesia Start Time</label>
+          <input id="astart" type="datetime-local" />
+
+          <div class="section-title">Fluid Therapy</div>
+          <div class="fluid-box">
+            <div class="inline-2">
+              <div>
+                <label>Fluid Type</label>
+                <select id="fluidType">
+                  <option>Lactated Ringer's Solution (LRS)</option>
+                  <option>Normosol-R</option>
+                  <option>Plasma-Lyte A</option>
+                  <option>0.9% Sodium Chloride</option>
+                  <option>Veterinary Plasma-Lyte 148</option>
+                  <option>Hetastarch</option>
+                  <option>Dextran 70</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div>
+                <label>Rate (mL/kg/hr)</label>
+                <input id="fluidRatePerKg" type="number" step="0.1" value="5" />
+              </div>
+            </div>
+
+            <div class="inline-2">
+              <div>
+                <label>Total Fluid Rate (mL/hr)</label>
+                <input id="fluidTotalRate" readonly />
+              </div>
+              <div>
+                <label>Total Time (hr)</label>
+                <input id="fluidHours" type="number" step="0.1" value="1" />
+              </div>
+            </div>
+
+            <div class="inline-2">
+              <div>
+                <label>Total Volume Given (mL)</label>
+                <input id="fluidTotalVolume" readonly />
+              </div>
+              <div>
+                <label>Drip Set (gtt/mL)</label>
+                <select id="gttFactor">
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="20">20</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="inline-2">
+              <div>
+                <label>Drip Rate (gtt/min)</label>
+                <input id="dripOut" readonly />
+              </div>
+              <div>
+                <label>Fluid Notes</label>
+                <input id="fluidNote" placeholder="maintenance / surgery / bolus / shock support" />
+              </div>
+            </div>
+
+            <div class="section-title">Bolus &amp; Shock Tools</div>
+            <div class="inline-3">
+              <div>
+                <label>Bolus (mL/kg)</label>
+                <input id="bolusRate" type="number" step="0.1" value="10" />
+              </div>
+              <div>
+                <label>Total Bolus (mL)</label>
+                <input id="bolusTotal" readonly />
+              </div>
+              <div>
+                <label>Shock Dose (mL)</label>
+                <input id="shockDoseTotal" readonly />
+              </div>
+            </div>
+            <div class="muted">Shock dose uses 90 mL/kg for dogs and 60 mL/kg for cats by default.</div>
+          </div>
+
+          <div class="section-title">Additional Notes</div>
+          <textarea id="additionalNotes" placeholder="Enter anesthesia notes, positioning, complications, events, etc."></textarea>
+
+          <div class="sticky-actions">
+            <div class="small-actions">
+              <button type="button" id="saveRecordBtn">Save Full Record</button>
+              <button type="button" class="ghost" id="saveToDeviceBtn">Save to Device</button>
+              <button type="button" class="danger" id="clearAllBtn">Clear All</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Medication Chart</h3>
+          <div class="muted">Weight-based routine anesthesia drug calculations.</div>
+          <div class="small-actions" style="margin-top:10px;">
+            <button class="ghost" type="button" id="refreshMedicationChartBtn">Refresh</button>
+            <button class="ghost" type="button" id="showAllMedicationRowsBtn">Show All</button>
+            <button class="ghost" type="button" id="hideUnusedMedicationRowsBtn">Hide Unused</button>
+          </div>
+          <div class="checkbox-inline">
+            <input id="autoHideUnused" type="checkbox" />
+            <label for="autoHideUnused" style="margin:0;">Auto-hide medications not marked in use</label>
+          </div>
+          <div class="table-wrap"><table class="table" id="medCalcTable"></table></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>Monitoring</h3>
+          <div class="monitor-layout">
+            <div class="monitor-controls">
+              <div class="stat-grid">
+                <div class="stat-box" id="box_hr"><div class="stat-label">HR</div><div class="stat-value" id="live_hr">--</div></div>
+                <div class="stat-box" id="box_spo2"><div class="stat-label">SpO₂</div><div class="stat-value" id="live_spo2">--</div></div>
+                <div class="stat-box" id="box_etco2"><div class="stat-label">ETCO₂</div><div class="stat-value" id="live_etco2">--</div></div>
+                <div class="stat-box" id="box_map"><div class="stat-label">MAP</div><div class="stat-value" id="live_map">--</div></div>
+              </div>
+
+              <div class="alarm-box">
+                <strong>Alarm Status</strong>
+                <div id="alarmSummary" class="muted" style="margin-top:8px;">No alarms yet.</div>
+              </div>
+
+              <div class="inline-2">
+                <div><label>HR</label><input id="hr" type="number" placeholder="bpm" /></div>
+                <div><label>SpO₂</label><input id="spo2" type="number" placeholder="%" /></div>
+              </div>
+              <div class="inline-3">
+                <div><label>ETCO₂</label><input id="etco2" type="number" placeholder="mmHg" /></div>
+                <div><label>Resp Rate</label><input id="rr" type="number" placeholder="breaths/min" /></div>
+                <div><label>Temperature</label><input id="temp" type="number" step="0.1" placeholder="°C or °F" /></div>
+              </div>
+              <div class="inline-3">
+                <div><label>SBP</label><input id="sbp" type="number" placeholder="mmHg" /></div>
+                <div><label>DBP</label><input id="dbp" type="number" placeholder="mmHg" /></div>
+                <div><label>MAP</label><input id="map" type="number" placeholder="mmHg" /></div>
+              </div>
+              <div class="inline-2">
+                <div><label>O₂ Flow Rate</label><input id="o2flow" type="number" step="0.1" placeholder="L/min" /></div>
+                <div><label>Iso/Sevo Setting</label><input id="vaporizer" type="number" step="0.1" placeholder="%" /></div>
+              </div>
+
+              <div class="small-actions" style="margin-top:10px;">
+                <button type="button" id="addDataBtn">Add 5-Min Point</button>
+                <button type="button" class="ghost" id="clearChartBtn">Clear Chart</button>
+                <button type="button" class="secondary" id="useCurrentTimeBtn">Use Current Time</button>
+              </div>
+
+              <div class="summary-box">
+                <strong>Current Record Summary</strong>
+                <div id="recordSummary" class="muted" style="margin-top:8px;">No record saved yet.</div>
+              </div>
+            </div>
+
+            <div>
+              <div class="chart-wrapper"><canvas id="chart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card print-keep-card">
+          <h3>Medications Used</h3>
+          <div class="inline-3 print-only-hide">
+            <div><label>Medication Name</label><input id="medName" placeholder="e.g. Methadone" /></div>
+            <div><label>Dose Administered</label><input id="medDose" placeholder="e.g. 0.2 mg/kg = 2 mg / 0.2 mL" /></div>
+            <div>
+              <label>Route</label>
+              <select id="medRoute">
+                <option>IV</option>
+                <option>IM</option>
+                <option>SC</option>
+                <option>PO</option>
+                <option>ET</option>
+                <option>CRI</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+          <button type="button" id="addMedicationBtn" class="print-only-hide">Add Manual Medication</button>
+          <div class="table-wrap"><table class="table compact" id="medTable"></table></div>
+        </div>
+      </div>
+
+      <div class="card card-full print-keep-card">
+        <h3>Recovery &amp; Print</h3>
+        <div class="recovery-box">
+          <div class="inline-3">
+            <div><label>Surgery / Anesthesia End Time</label><input id="aend" type="datetime-local" /></div>
+            <div><label>Extubation Time</label><input id="extubationTime" type="datetime-local" /></div>
+            <div><label>Recovery Time</label><input id="recoveryTime" type="datetime-local" /></div>
+          </div>
+          <label>Recovery Notes</label>
+          <textarea id="recoveryNotes" placeholder="Enter recovery quality, complications, analgesia, temperature support, discharge readiness, etc."></textarea>
+          <div class="print-actions print-only-hide" style="margin-top:12px;">
+            <button class="print-main" type="button" id="printBtn">Print / Save PDF</button>
+            <button class="ghost" type="button" id="backToTopBtn">Back to Top</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-full print-only-hide">
+        <h3>Emergency Drug Chart (RECOVER CPR)</h3>
+        <div class="muted">Weight-based emergency drug calculations with repeated administration times.</div>
+        <div class="small-actions" style="margin-top:10px;">
+          <button class="ghost" type="button" id="refreshEmergencyChartBtn">Refresh</button>
+          <button class="ghost" type="button" id="showAllEmergencyRowsBtn">Show All</button>
+          <button class="ghost" type="button" id="hideUnusedEmergencyRowsBtn">Hide Unused</button>
+        </div>
+        <div class="checkbox-inline">
+          <input id="autoHideUnusedEmergency" type="checkbox" />
+          <label for="autoHideUnusedEmergency" style="margin:0;">Auto-hide emergency drugs not marked in use</label>
+        </div>
+        <div class="table-wrap"><table class="table" id="emergCalcTable"></table></div>
+      </div>
+
+      <div class="card card-full print-only-hide">
+        <h3>Saved Cases</h3>
+        <div class="small-actions" style="margin-bottom:10px;">
+          <button class="ghost" type="button" id="exportCasesBtn">Export Cases JSON</button>
+          <button class="ghost" type="button" id="importCasesBtn">Import Cases JSON</button>
+        </div>
+        <div class="table-wrap"><table class="table compact" id="ptable"></table></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="data/drugs.js"></script>
+  <script src="data/emergency-drugs.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/calculators.js"></script>
+  <script src="js/chart.js"></script>
+  <script src="js/tables.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
